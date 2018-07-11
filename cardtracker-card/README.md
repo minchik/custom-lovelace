@@ -1,4 +1,4 @@
-# Card tracker 🃏
+# 📣 Card tracker
 
 A card to track updates for custom cards in this repository. It will use a sensor created by https://github.com/custom-components/custom_cards
 

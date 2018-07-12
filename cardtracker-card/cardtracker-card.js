@@ -19,12 +19,33 @@ class CardTracker extends HTMLElement {
     const content = document.createElement('div');
     const style = document.createElement('style');
     style.textContent = `
-        ha-card {
-          /* sample css */ 
-          padding: 16px;
-        }
-      `;
-    content.id = "container";
+          ha-card {
+            /* sample css */
+            padding: 16px;
+          }
+          table {
+            width: 100%;
+            padding: 16px;
+          }
+          thead th {
+            text-align: left;
+          }
+          tbody tr:nth-child(odd) {
+            background-color: var(--paper-card-background-color);
+          }
+          tbody tr:nth-child(even) {
+            background-color: var(--secondary-background-color);
+          }
+        `;
+    content.innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Current</th><th>Available</th></tr></thead>
+        <tbody id="container">
+        </tbody>
+      </table>
+      <hr/>
+      <paper-button raised>Update All</paper-button>
+    `;
     card.header = cardConfig.title
     card.appendChild(content);
     card.appendChild(style);
@@ -37,10 +58,16 @@ class CardTracker extends HTMLElement {
     const root = this.shadowRoot;
 
     if (hass.states[config.entity]) {
-      const list = hass.states[config.entity].attributes;
+      const list = hass.states[config.entity].attributes.attr;
       this.style.display = 'block';
+      console.log(list);
       if (list !== undefined && list.length > 0) {
-        root.getElementById("container").innerHTML = `Updates OMG`;
+        const updated_content = `
+          ${list.map(elem => `
+            <tr><td>${elem.name}</td><td>${elem.installed}</td><td>${elem.version!="False"?elem.version:'n/a'}</td></tr>
+          `).join('')}
+        `;
+        root.getElementById("container").innerHTML = updated_content;
       } else {
         this.style.display = 'none';
       }
@@ -49,10 +76,8 @@ class CardTracker extends HTMLElement {
       this.style.display = 'none';
     }
   }
-
   getCardSize() {
     return 1;
   }
 }
-
 customElements.define('cardtracker-card', CardTracker);

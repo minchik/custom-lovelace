@@ -1,22 +1,6 @@
 class MonsterCard extends HTMLElement {
 
   _getEntities(hass, filters) {
-    function _filterEntityId(stateObj, pattern) {
-      if (pattern.indexOf('*') === -1) {
-        return stateObj.entity_id === pattern;
-      }
-      const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`, 'i');
-      return stateObj.entity_id.search(regEx) === 0;
-    }
-    function _filterName(stateObj, pattern) {
-      let compareEntity = stateObj.attributes.title?stateObj.attributes.title:stateObj.attributes.friendly_name;
-      if (!compareEntity) compareEntity = stateObj.entity_id;
-      if (pattern.indexOf('*') === -1) {
-        return compareEntity === pattern;
-      }
-      const regEx = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`, 'i');
-      return compareEntity.search(regEx) === 0;
-    }
     const entities = new Set();
     filters.forEach((filter) => {
       const filters = [];
@@ -29,11 +13,9 @@ class MonsterCard extends HTMLElement {
         });
       }
       if (filter.entity_id) {
-        filters.push(stateObj => _filterEntityId(stateObj, filter.entity_id));
+        filters.push(stateObj => stateObj.entity_id === filter.entity_id);
       }
-      if (filter.name) {
-        filters.push(stateObj => _filterName(stateObj, filter.name));
-      }
+
       if (filter.states) {
         filters.push(stateObj => filter.states.includes(stateObj.state));
       }
@@ -76,8 +58,6 @@ class MonsterCard extends HTMLElement {
       const excludeEntities = this._getEntities(hass, config.filter.exclude);
       entities = entities.filter(entity => !excludeEntities.includes(entity));
     }
-
-
 
     if (entities.length === 0 && config.show_empty === false) {
       this.style.display = 'none';

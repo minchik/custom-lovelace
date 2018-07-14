@@ -1,4 +1,8 @@
 class MonsterCard extends HTMLElement {
+  _shouldHide(hass, number_of_entities) {
+    return number_of_entities === 0 && this._config.show_empty === false 
+    || (this._config.when && !this._config.when.states.includes(hass.states[this._config.when.entity].state))
+  }
 
   _getEntities(hass, filters) {
     const entities = new Set();
@@ -15,7 +19,6 @@ class MonsterCard extends HTMLElement {
       if (filter.entity_id) {
         filters.push(stateObj => stateObj.entity_id === filter.entity_id);
       }
-
       if (filter.states) {
         filters.push(stateObj => filter.states.includes(stateObj.state));
       }
@@ -23,7 +26,7 @@ class MonsterCard extends HTMLElement {
       Object.keys(hass.states).sort().forEach(key => {
         if (filters.every(filterFunc => filterFunc(hass.states[key]))) {
           if (filter.options) {
-            entities.add(Object.assign({"entity": hass.states[key].entity_id}, filter.options));
+            entities.add(Object.assign({ "entity": hass.states[key].entity_id }, filter.options));
           } else {
             entities.add(hass.states[key].entity_id)
           }
@@ -59,14 +62,10 @@ class MonsterCard extends HTMLElement {
       entities = entities.filter(entity => !excludeEntities.includes(entity));
     }
 
-    if (entities.length === 0 && config.show_empty === false) {
+    if (this._shouldHide(hass, entities.length)) {
       this.style.display = 'none';
     } else {
-      if (!config.when || config.when.states.includes(hass.states[config.when.entity].state)) {
-        this.style.display = 'block';
-      } else {
-        this.style.display = 'none';
-      }
+      this.style.display = 'block';
     }
 
     if (!config.card.entities || config.card.entities.length !== entities.length ||

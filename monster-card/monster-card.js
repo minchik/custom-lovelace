@@ -45,8 +45,8 @@ class MonsterCard extends HTMLElement {
 
     const cardConfig = Object.assign({}, config);
     if (!cardConfig.card) cardConfig.card = {};
-    if (config.card.entities) delete config.card.entities;
     if (!cardConfig.card.type) cardConfig.card.type = 'entities';
+    config.card.entities = [];
 
     const element = document.createElement(`hui-${cardConfig.card.type}-card`);
     this.appendChild(element);
@@ -64,16 +64,17 @@ class MonsterCard extends HTMLElement {
 
     if (this._shouldHide(hass, entities.length)) {
       this.style.display = 'none';
-    } else {
-      this.style.display = 'block';
+      return
     }
+    
+    this.style.display = 'block';
+    this.lastChild.hass = hass;
 
     if (!config.card.entities || config.card.entities.length !== entities.length ||
       !config.card.entities.every((value, index) => value === entities[index])) {
       config.card.entities = entities;
       this.lastChild.setConfig(config.card);
     }
-    this.lastChild.hass = hass;
   }
 
   getCardSize() {

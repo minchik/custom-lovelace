@@ -1,7 +1,7 @@
 class MonsterCard extends HTMLElement {
   _shouldHide(hass, number_of_entities) {
     return number_of_entities === 0 && this._config.show_empty === false 
-    || (this._config.when && !this._config.when.states.includes(hass.states[this._config.when.entity].state))
+    || (this._config.when && !this._config.when.states.includes(hass.states[this._config.when.entity_id].state))
   }
 
   _getEntities(hass, filters) {
